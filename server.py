@@ -95,7 +95,7 @@ async def Server(ws, path):
 
 		# BUILD DATASET
 		close = StockData(ticker)
-		df = AddMetrics(close)
+		df = AddMetrics(close, days=lookback)
 		model = Model(int(window*4), output)
 		train, test = TrainTest(df)
 
