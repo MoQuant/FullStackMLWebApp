@@ -97,7 +97,7 @@ async def Server(ws, path):
 		close = StockData(ticker)
 		df = AddMetrics(close, days=lookback)
 		model = Model(int(window*4), output)
-		train, test = TrainTest(df)
+		train, test = TrainTest(df, prop=prop)
 
 		X, Y = Inputs(train, window=window, output=output)
 
