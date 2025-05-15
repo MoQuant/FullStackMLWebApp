@@ -1,14 +1,17 @@
 import React from 'react'
 import Plot from 'react-plotly.js'
 
+// Build app class
 export default class App extends React.Component {
 
+  // Define constructor
   constructor(){
     super();
 
     // Params = epochs, window, output, learning_rate
     // lookback_days, prop
 
+    // Contains global parameters used by the web application
     this.state = {response: null,
                   epochs: 1000,
                   window: 100,
@@ -20,35 +23,46 @@ export default class App extends React.Component {
                   sock: null,
                   stats: 'idle'}
 
+    // Declare functions to adjust parameters, react to button being clicked, and plot the result data once training is complete
     this.changeParam = this.changeParam.bind(this)
     this.clickData = this.clickData.bind(this)
     this.plotData = this.plotData.bind(this)
   }
 
   componentDidMount(){
+    // Connect to the Python websocket
     const socket = new WebSocket('ws://localhost:8080')
+
+    // Receive messages from the Python server  
     socket.onmessage = (evt) => {
       // type, payload
       const response = JSON.parse(evt.data)
+
+      // Divides the streamed data into update or plot
       if(response['type'] === 'update'){
         this.setState({ stats: response['payload']})
       } else {
         this.setState({ response: response['payload']})
       }
     }
+
+    // Global decleration of websocket object
     this.setState({ sock: socket})
   }
 
+  // Change input values
   changeParam(evt){
     this.setState({ [evt.target.name]: evt.target.value })
   }
 
+  // Send Python server inputted parameters
   clickData(evt){
     const { sock, ticker, epochs, window, output, lr, lookback, prop } = this.state
     const msg = [ticker, epochs, window, output, lr, lookback, prop]
     sock.send(JSON.stringify(msg))
   }
 
+  // Plots the stock data using Plotly.js
   plotData(){
     const hold = []
     const { response } = this.state
@@ -86,6 +100,7 @@ export default class App extends React.Component {
 
   render(){
 
+    // Load current variables
     const { epochs, window, output, lr, lookback, prop } = this.state
 
     return(
